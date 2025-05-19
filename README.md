@@ -51,14 +51,13 @@ Visit: [https://breachedliao.online](https://breachedliao.online)
 ├── app.js
 
 ├── public/
-│ └── css/styles.css
+  │ └── css/styles.css
 
 ├── views/
-│ ├── index.ejs
-│ └── report.ejs
+  │ ├── index.ejs
+    │ └── report.ejs
 
 ├── .env.example
 
 ├── Procfile
-
-└── README.md
+  └── README.md
