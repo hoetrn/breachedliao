@@ -8,7 +8,8 @@ Tech Up 4 Web App
 Since 2004, Singapore has recorded 33.7 million data breaches, placing it 38th amongst 250 countries worldwide. In today's digital age, less tech-savvy individuals aged 50 and above increasingly rely on online services (e.g., e-banking, healthcare, CPF, etc) that require the use of personal information such as email addresses and phone numbers. Over time, this data is stored, shared, and sometimes mishandled across various platforms, making users vulnerable to data breaches, unauthorised access, and identity theft. Despite the rising number of data incidents, most people remain unaware when their sensitive information has been compromised, especially if it’s not publicly disclosed or widely reported. This leaves them vulnerable because compromised data can lead to financial losses, reputational damage, and long-term emotional distress, further exacerbating the digital divide.
 
 ## 💡 Description of Web App
-A user-friendly web application that enables individuals to easily check if their email address or phone number has been exposed in data breaches, spam databases, or leaked repositories. The app generates a comprehensive hygiene report that includes a risk score and personalised recommendations to help users better secure their personal information and data. To ensure user trust, the web app should feature a clear privacy assurance banner (e.g., 'Your data will not be saved') and be hosted on a trusted government domain such as gov.sg. This approach not only addresses data security concerns but also reinforces user confidence by prioritising transparency and privacy.
+A user-friendly web application that enables individuals to easily check if their email address or phone number has been exposed in data breaches, spam databases, or leaked repositories. The app generates a comprehensive hygiene report that includes a risk score and personalised recommendations to help users better secure their personal information and data. To ensure user trust, the web app features a clear privacy assurance banner (e.g., 'We protect your data and never store your searches') with no user log in required. This approach not only addresses data security concerns but also reinforces user confidence by prioritising transparency and privacy.
+
 TLDR: A user-friendly web app that lets anyone check if their email address or phone number has been exposed in data breaches, and provides recommendations.
 
 ---
@@ -31,7 +32,7 @@ Visit: [https://breachedliao.online](https://breachedliao.online)
 - **Risk score** (0–100) based on breach count and severity
 - **Hygiene report** with practical security recommendations
 - **Minimalist design** with Singaporean flair 🇸🇬
-- **Privacy banner** to reassure users: `Your data will not be saved.`
+- **Privacy banner** to reassure users: `We protect your data and never store your searches.`
 
 ---
 
