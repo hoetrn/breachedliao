@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hygiene Report</title>
+  <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+  <div class="container">
+    <h1>Hygiene Report for <%= email %></h1>
+
+    <h2>📊 Risk Score: <%= riskScore %>/100</h2>
+
+    <% if (breaches.length > 0) { %>
+      <p class="alert">Wah, your email was found in <%= breaches.length %> breach(es)!</p>
+      <ul>
+        <% breaches.forEach(breach => { %>
+          <li><strong><%= breach.Name %></strong> - <%= breach.BreachDate %></li>
+        <% }) %>
+      </ul>
+    <% } else { %>
+      <p class="safe">Steady pom pi pi! No breaches found.</p>
+    <% } %>
+
+    <h3>🛠️ Recommendations:</h3>
+    <ul>
+      <% recommendations.forEach(r => { %>
+        <li><%= r %></li>
+      <% }) %>
+    </ul>
+
+    <% if (comparison) { %>
+      <h3>🔁 Comparison with Previous Scan:</h3>
+      <p>Previous Score: <%= comparison.previousScore %> → Current Score: <%= comparison.currentScore %></p>
+      <p>
+        <%= comparison.improvement > 0 ? "⚠️ Risk increased." :
+             comparison.improvement < 0 ? "✅ You're more secure now!" :
+             "No change in score." %>
+      </p>
+    <% } else { %>
+      <p>This is your first scan. Come back again to compare your hygiene score over time!</p>
+    <% } %>
+
+    <a href="/">← Check Another Email</a>
+  </div>
+</body>
+</html>
