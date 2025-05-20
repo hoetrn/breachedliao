@@ -46,18 +46,3 @@ Visit: [https://breachedliao.online](https://breachedliao.online)
 | Hosting      | Render + GitHub                  |
 
 ---
-
-## 🏗️ Project Structure
-├── app.js
-
-├── public/
-  │ └── css/styles.css
-
-├── views/
-  │ ├── index.ejs
-    │ └── report.ejs
-
-├── .env.example
-
-├── Procfile
-  └── README.md
