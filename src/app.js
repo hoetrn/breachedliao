@@ -36,6 +36,7 @@ app.get("/", (req, res) => {
 app.post("/check", async (req, res) => {
   try {
     const email = req.body.email;
+    const url = `https://haveibeenpwned.com/api/v3/breachedaccount/${encodeURIComponent(email)}?truncateResponse=false&includeUnverified=true`;
     let comparisonToken = req.cookies.comparisonToken;
 
     if (!comparisonToken) {
@@ -110,7 +111,6 @@ app.post("/check", async (req, res) => {
     res.render("error", { message: "Something went wrong." });
   }
 });
-const url = `https://haveibeenpwned.com/api/v3/breachedaccount/${encodeURIComponent(email)}?truncateResponse=false&includeUnverified=true`;
 
 // ✅ This MUST be at the end
 app.listen(port, () => {
