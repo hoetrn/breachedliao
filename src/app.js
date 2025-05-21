@@ -31,6 +31,9 @@ function generateToken() {
 
 app.get("/", (req, res) => {
   res.render("index");
+app.get("/check", (req, res) => {
+  res.redirect("/");
+});
 });
 
 app.post("/check", async (req, res) => {
