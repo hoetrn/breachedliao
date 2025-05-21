@@ -34,25 +34,26 @@ app.get("/", (req, res) => {
 });
 
 app.post("/check", async (req, res) => {
-  const email = req.body.email;
-  let comparisonToken = req.cookies.comparisonToken;
-
-  if (!comparisonToken) {
-    comparisonToken = generateToken();
-    res.cookie("comparisonToken", comparisonToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 1000 * 60 * 60 * 24 * 365 // 1 year
-    });
-  }
-
-  const emailHash = hashInput(email);
-
   try {
-    const hibpRes = await fetch(`https://haveibeenpwned.com/api/v3/breachedaccount/${email}`, {
+    const email = req.body.email;
+    let comparisonToken = req.cookies.comparisonToken;
+
+    if (!comparisonToken) {
+      comparisonToken = generateToken();
+      res.cookie("comparisonToken", comparisonToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 1000 * 60 * 60 * 24 * 365 // 1 year
+      });
+    }
+
+    // hibpKey is not defined in your code, make sure to define it or get it from env
+    const hibpKey = process.env.HIBP_API_KEY;
+
+    const hibpRes = await fetch(`https://haveibeenpwned.com/api/v3/breachedaccount/${encodeURIComponent(email)}?truncateResponse=false`, {
       method: "GET",
       headers: {
-        "hibp-api-key": process.env.HIBP_API_KEY,
+        "hibp-api-key": hibpKey,
         "User-Agent": "breachedliao-online"
       }
     });
@@ -60,6 +61,10 @@ app.post("/check", async (req, res) => {
     let breaches = [];
     if (hibpRes.status === 200) {
       breaches = await hibpRes.json();
+    } else if (hibpRes.status === 404) {
+      breaches = []; // No breach found
+    } else {
+      throw new Error(`HIBP API error ${hibpRes.status}`);
     }
 
     const riskScore = Math.min(breaches.length * 20, 100);
@@ -68,6 +73,9 @@ app.post("/check", async (req, res) => {
       "Enable two-factor authentication",
       "Check account recovery settings"
     ];
+
+    // emailHash is not defined in your code, hash the email before using
+    const emailHash = hashInput(email);
 
     await pool.query(
       "INSERT INTO hygiene_results (email_hash, breaches_found, risk_score, recommendations, comparison_token) VALUES ($1, $2, $3, $4, $5)",
@@ -102,6 +110,7 @@ app.post("/check", async (req, res) => {
     res.render("error", { message: "Something went wrong." });
   }
 });
+const url = `https://haveibeenpwned.com/api/v3/breachedaccount/${encodeURIComponent(email)}?truncateResponse=false&includeUnverified=true`;
 
 // ✅ This MUST be at the end
 app.listen(port, () => {
