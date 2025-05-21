@@ -67,7 +67,10 @@ app.post("/check", async (req, res) => {
     } else {
       throw new Error(`HIBP API error ${hibpRes.status}`);
     }
-
+  } catch (err) {
+    console.error("Failed to query HIBP API:", err.message);
+    return res.render("error", { message: "Something went wrong with the HIBP API." });
+  }
     const riskScore = Math.min(breaches.length * 20, 100);
     const recommendations = [
       "Change your password",
@@ -106,10 +109,6 @@ app.post("/check", async (req, res) => {
       comparison,
       comparisonToken
     });
-  } catch (error) {
-    console.error(error);
-    res.render("error", { message: "Something went wrong." });
-  }
 });
 
 // ✅ This MUST be at the end
