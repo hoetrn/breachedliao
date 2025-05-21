@@ -75,11 +75,11 @@ button:hover {
   color: #155724;
 }
 
-footer {
-  margin-top: 2rem;
-  text-align: center;
-  font-size: 0.85rem;
-  color: #888;
+footer .disclaimer {
+  font-size: 0.75rem;
+  color: #777;
+  margin-top: 1rem;
+  line-height: 1.4;
 }
 
 /* 📱 Responsive Design for Mobile */
