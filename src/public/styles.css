@@ -21,8 +21,10 @@ h1 {
   font-weight: bold;
   text-align: center;
   background: linear-gradient(to right, #5b9eff, #1e3c72);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  color: transparent;
   margin-bottom: 1rem;
 }
 
