@@ -16,7 +16,19 @@
         display: none !important;
       }
     }
-  </style>
+  
+    a {
+      text-decoration: underline;
+      color: #3366cc;
+    }
+    @media print {
+      a::after {
+        content: " (" attr(href) ")";
+        font-size: 0.9rem;
+        color: #000;
+      }
+    }
+    </style>
 </head>
 <body>
   <div class="container result-card">
@@ -49,18 +61,48 @@
         </ul>
       </div>
 
-      <h3 style="font-size: 1.4rem; margin-top: 2rem;">
-        <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/shield-check.svg" alt="Recommendations" width="20" style="vertical-align: middle; margin-right: 0.5rem;">
-        Recommended Actions
-      </h3>
-      <ul style="font-size: 1.1rem; padding-left: 1.5rem;">
-        <% recommendations.forEach(r => { %>
-          <li>
-            <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/arrow-right-circle.svg" alt="Arrow" width="16" style="vertical-align: middle; margin-right: 0.5rem;">
-            <%= r %>
-          </li>
-        <% }) %>
-      </ul>
+      
+<%
+// Personalized recommendation bank
+const allRecommendations = {
+  low: [
+    { text: "Check your account recovery settings", link: "https://support.google.com/accounts/answer/183723?hl=en" },
+    { text: "Review your email forwarding rules", link: "https://proton.me/support/email-forwarding" }
+  ],
+  moderate: [
+    { text: "Change your password regularly", link: "https://www.csa.gov.sg/News-Events/Blog/2020/11/19/10-commandments-of-good-cyber-hygiene" },
+    { text: "Enable two-factor authentication", link: "https://www.csa.gov.sg/News-Events/News/ArtMID/669/ArticleID/1537/Enable-2FA-for-Better-Protection" }
+  ],
+  high: [
+    { text: "Use a password manager to generate strong passwords", link: "https://www.csa.gov.sg/News-Events/Blog/2020/11/24/how-to-choose-a-good-password-manager" },
+    { text: "Secure breached accounts immediately", link: "https://www.haveibeenpwned.com/FAQs" }
+  ]
+};
+
+// Assign based on risk score
+let severityLevel = "low";
+if (riskScore > 66) {
+  severityLevel = "high";
+} else if (riskScore > 33) {
+  severityLevel = "moderate";
+}
+const personalized = allRecommendations[severityLevel];
+%>
+
+<h3 style="font-size: 1.4rem; margin-top: 2rem;">
+  <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/shield-check.svg" alt="Recommendations" width="20" style="vertical-align: middle; margin-right: 0.5rem;">
+  Recommended Actions
+</h3>
+<ul style="font-size: 1.1rem; padding-left: 1.5rem; list-style: none;">
+  <% personalized.forEach(r => { %>
+    <li style="margin-bottom: 0.75rem;">
+      <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/arrow-right-circle.svg" alt="Arrow" width="16" style="vertical-align: middle; margin-right: 0.5rem;">
+      <%= r.text %><br>
+      <a href="<%= r.link %>" target="_blank" style="font-size: 0.95rem; color: #3366cc;">Read more</a>
+    </li>
+  <% }) %>
+</ul>
+
     <% } else { %>
       <div class="safe" style="margin-top: 2rem;">
         <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/check-circle-fill.svg" alt="Safe" width="20" style="vertical-align: middle; margin-right: 0.5rem;">

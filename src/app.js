@@ -99,12 +99,6 @@ app.post("/check", async (req, res) => {
     }
 
     const riskScore = Math.min(breaches.length * 20, 100);
-    const recommendations = [
-      "Change your password regularly",
-      "Enable two-factor authentication",
-      "Check account recovery settings",
-      "Avoid reusing passwords across accounts"
-    ];
 
     await pool.query(
       "INSERT INTO hygiene_results (email_hash, breaches_found, risk_score, recommendations, comparison_token) VALUES ($1, $2, $3, $4, $5)",
