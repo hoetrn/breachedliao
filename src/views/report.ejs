@@ -1,71 +1,82 @@
 
-<div class="container result-card">
-  <h1 class="gradient-text">🧾 Internet Hygiene Report for <%= email %></h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hygiene Report</title>
+  <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+  <div class="container result-card">
+    <h1 class="gradient-text">🧾 Hygiene Report for <%= email %></h1>
 
-<div style="text-align: center; margin-top: 1rem;">
-  <div style="display: flex; justify-content: center; align-items: center; gap: 1rem;">
     <% let trafficColor = riskScore <= 33 ? 'green' : riskScore <= 66 ? 'orange' : 'red'; %>
-<div style="background-color: '<%= trafficColor %>'; width: 20px; height: 20px; border-radius: 50%;"></div>
+    <% let riskLabel = riskScore <= 33 ? 'Low Risk' : riskScore <= 66 ? 'Moderate Risk' : 'High Risk'; %>
 
-    <h2 style="font-size: 1.8rem; margin: 0;">
-      <strong>
-        <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/graph-up.svg" alt="Graph Icon" width="24" style="vertical-align: middle;" />
-        Risk Score: <%= riskScore %>/100
-      </strong>
-    </h2>
-  </div>
-  <p style="font-size: 1rem; color: #666; margin-top: 0.5rem;">
-    <%= riskScore <= 33 ? "Low Risk" :
-        riskScore <= 66 ? "Moderate Risk" : "High Risk" %>
-  </p>
-</div>
-
-
-  <% if (breaches.length > 0) { %>
-    <div class="alert">
-      <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/exclamation-triangle-fill.svg" alt="Warning" width="20" style="vertical-align: middle; margin-right: 0.5rem;">
-      <strong>Your email appeared in <%= breaches.length %> breach(es).</strong>
-      <ul style="margin-top: 0.5rem; padding-left: 1rem;">
-        <% breaches.forEach(breach => { %>
-          <li><strong><%= breach.Name %></strong> — Breached on <%= breach.BreachDate %></li>
-        <% }) %>
-      </ul>
+    <div style="text-align: center; margin-top: 1rem;">
+      <div style="display: flex; justify-content: center; align-items: center; gap: 1rem;">
+        <div style="width: 20px; height: 20px; border-radius: 50%; background-color: '<%= trafficColor %>';"></div>
+        <h2 style="font-size: 1.8rem; margin: 0;">
+          <strong>
+            <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/graph-up.svg" alt="Graph Icon" width="24" style="vertical-align: middle;" />
+            Risk Score: <%= riskScore %>/100
+          </strong>
+        </h2>
+      </div>
+      <p style="font-size: 1rem; color: #666; margin-top: 0.5rem;"><%= riskLabel %></p>
     </div>
-  <% } else { %>
-    <div class="safe">
-      <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/check-circle-fill.svg" alt="Safe" width="20" style="vertical-align: middle; margin-right: 0.5rem;">
-      Great news — no known breaches found for your email.
-    </div>
-  <% } %>
 
-  <h3 style="font-size: 1.4rem; margin-top: 2rem;">
-    <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/shield-check.svg" alt="Recommendations" width="20" style="vertical-align: middle; margin-right: 0.5rem;">
-    Recommended Actions
-  </h3>
-  <ul style="font-size: 1.1rem; padding-left: 1.5rem;">
-    <% recommendations.forEach(r => { %>
-      <li><img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/arrow-right-circle.svg" alt="Arrow" width="16" style="vertical-align: middle; margin-right: 0.5rem;"> <%= r %></li>
-    <% }) %>
-  </ul>
+    <% if (breaches.length > 0) { %>
+      <div class="alert" style="margin-top: 2rem;">
+        <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/exclamation-triangle-fill.svg" alt="Warning" width="20" style="vertical-align: middle; margin-right: 0.5rem;">
+        <strong>Your email appeared in <%= breaches.length %> breach(es).</strong>
+        <ul style="margin-top: 0.5rem; padding-left: 1rem;">
+          <% breaches.forEach(breach => { %>
+            <li><strong><%= breach.Name %></strong> — Breached on <%= breach.BreachDate %></li>
+          <% }) %>
+        </ul>
+      </div>
+    <% } else { %>
+      <div class="safe" style="margin-top: 2rem;">
+        <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/check-circle-fill.svg" alt="Safe" width="20" style="vertical-align: middle; margin-right: 0.5rem;">
+        Great news — no known breaches found for your email.
+      </div>
+    <% } %>
 
-  <% if (comparison) { %>
     <h3 style="font-size: 1.4rem; margin-top: 2rem;">
-      <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/arrow-repeat.svg" alt="Compare" width="20" style="vertical-align: middle; margin-right: 0.5rem;">
-      Comparison from Previous Scan
+      <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/shield-check.svg" alt="Recommendations" width="20" style="vertical-align: middle; margin-right: 0.5rem;">
+      Recommended Actions
     </h3>
-    <p>Previous Score: <strong><%= comparison.previousScore %></strong></p>
-    <p>Current Score: <strong><%= comparison.currentScore %></strong></p>
-    <p>
-      <%= comparison.improvement < 0 ? "✅ Your hygiene has improved!" :
-           comparison.improvement > 0 ? "⚠️ Your risk has increased." :
-           "➖ No change in score." %>
-    </p>
-  <% } else { %>
-    <p style="margin-top: 2rem;">🔄 This is your first scan. Return again to compare hygiene over time.</p>
-  <% } %>
+    <ul style="font-size: 1.1rem; padding-left: 1.5rem;">
+      <% recommendations.forEach(r => { %>
+        <li>
+          <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/arrow-right-circle.svg" alt="Arrow" width="16" style="vertical-align: middle; margin-right: 0.5rem;">
+          <%= r %>
+        </li>
+      <% }) %>
+    </ul>
 
-  <div style="text-align: center; margin-top: 2rem;">
-    <a href="/" class="scan-button">← Check Another Email</a>
-    <button onclick="window.print()" class="scan-button" style="margin-left: 1rem;">🖨️ Print as PDF</button>
+    <% if (comparison) { %>
+      <h3 style="font-size: 1.4rem; margin-top: 2rem;">
+        <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/arrow-repeat.svg" alt="Compare" width="20" style="vertical-align: middle; margin-right: 0.5rem;">
+        Comparison from Previous Scan
+      </h3>
+      <p>Previous Score: <strong><%= comparison.previousScore %></strong></p>
+      <p>Current Score: <strong><%= comparison.currentScore %></strong></p>
+      <p>
+        <%= comparison.improvement < 0 ? "✅ Your hygiene has improved!" :
+             comparison.improvement > 0 ? "⚠️ Your risk has increased." :
+             "➖ No change in score." %>
+      </p>
+    <% } else { %>
+      <p style="margin-top: 2rem;">🔄 This is your first scan. Return again to compare hygiene over time.</p>
+    <% } %>
+
+    <div style="text-align: center; margin-top: 2rem;">
+      <a href="/" class="scan-button">← Check Another Email</a>
+      <button onclick="window.print()" class="scan-button" style="margin-left: 1rem;">🖨️ Print as PDF</button>
+    </div>
   </div>
-</div>
+</body>
+</html>

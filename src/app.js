@@ -29,11 +29,15 @@ function generateToken() {
   return crypto.randomBytes(16).toString("hex");
 }
 
-app.get("/", (req, res) => {
-  res.render("index");
 app.get("/check", (req, res) => {
-  res.redirect("/");
+  res.render("error", {
+    message: "Please enter your email on the homepage form to run a check."
+  });
 });
+app.get("/", (req, res) => {
+  res.render("index", {
+    message: "Welcome to BreachedLiao! Enter your email to check for breaches."
+  });
 });
 
 app.post("/check", async (req, res) => {
