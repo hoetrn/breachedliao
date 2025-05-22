@@ -1,68 +1,32 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Hygiene Report</title>
-  <link rel="stylesheet" href="/css/styles.css"/>
-  <style>
-    .result-card {
-      background-color: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(4px);
-    }
-    @media print {
-      canvas#matrix-bg {
-        display: none !important;
-      }
-    }
-  
-    a {
-      text-decoration: underline;
-      color: #3366cc;
-    }
-    @media print {
-      a::after {
-        content: " (" attr(href) ")";
-        font-size: 0.9rem;
-        color: #000;
-      }
-    }
-    </style>
-</head>
-<body>
-  <div class="container result-card">
-    <h1 class="gradient-text">Hygiene Report for <%= email %></h1>
+<!-- header & setup -->
+<h1 class="gradient-text">Hygiene Report for <%= email %></h1>
 
-    <% let riskLabel = riskScore <= 33 ? "Low Risk" : riskScore <= 66 ? "Moderate Risk" : "High Risk"; %>
-    <% let riskClass = riskScore <= 33 ? "risk-low" : riskScore <= 66 ? "risk-moderate" : "risk-high"; %>
+<% let trafficColor = riskScore <= 33 ? 'green' : riskScore <= 66 ? 'orange' : 'red'; %>
+<% let riskLabel = riskScore <= 33 ? 'Low Risk' : riskScore <= 66 ? 'Moderate Risk' : 'High Risk'; %>
 
-    <div style="text-align: center; margin-top: 1rem;">
-      <div style="display: flex; justify-content: center; align-items: center; gap: 1rem;">
-        <div class="risk-dot <%= riskClass %>"></div>
-        <h2 style="font-size: 1.8rem; margin: 0;">
-          <strong>
-            <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/graph-up.svg" alt="Graph Icon" width="24" style="vertical-align: middle;" />
-            Risk Score: <%= riskScore %>/100
-          </strong>
-        </h2>
-      </div>
-      <p style="font-size: 1rem; color: #666; margin-top: 0.5rem;"><%= riskLabel %></p>
-    </div>
+<!-- score indicator -->
+<div style="text-align: center;">
+  <div style="display: flex; justify-content: center; align-items: center; gap: 1rem;">
+    <div class="risk-dot <%= riskLabel.toLowerCase().replace(' ', '-') %>"></div>
+    <h2><strong>Risk Score: <%= riskScore %>/100</strong></h2>
+  </div>
+  <p><%= riskLabel %></p>
+</div>
 
-    <% if (breaches.length > 0) { %>
-      <div class="alert" style="margin-top: 2rem;">
-        <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/exclamation-triangle-fill.svg" alt="Warning" width="20" style="vertical-align: middle; margin-right: 0.5rem;">
-        <strong>Wah! Your email appeared in <%= breaches.length %> breach(es).</strong>
-        <ul style="margin-top: 0.5rem; padding-left: 1rem;">
-          <% breaches.forEach(breach => { %>
-            <li><strong><%= breach.Name %></strong> — Breached on <%= breach.BreachDate %></li>
-          <% }) %>
-        </ul>
-      </div>
+<% if (breaches.length > 0) { %>
+  <div class="alert">
+    <strong>Wah! Your email appeared in <%= breaches.length %> breach(es).</strong>
+    <ul>
+      <% breaches.forEach(breach => { %>
+        <% const formattedDate = new Date(breach.BreachDate).toLocaleDateString("en-SG", { year: "numeric", month: "short", day: "numeric" }); %>
+        <li><strong><%= breach.Name %></strong> — Breached on <%= formattedDate %></li>
+      <% }) %>
+    </ul>
+  </div>
 
-      
-<%
+  <!-- recommendations placeholder -->
+  <%
 // Personalized recommendation bank
 const allRecommendations = {
   low: [
@@ -78,61 +42,9 @@ const allRecommendations = {
     { text: "Secure breached accounts immediately", link: "https://www.haveibeenpwned.com/FAQs" }
   ]
 };
-
-// Assign based on risk score
-let severityLevel = "low";
-if (riskScore > 66) {
-  severityLevel = "high";
-} else if (riskScore > 33) {
-  severityLevel = "moderate";
-}
-const personalized = allRecommendations[severityLevel];
 %>
-
-<h3 style="font-size: 1.4rem; margin-top: 2rem;">
-  <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/shield-check.svg" alt="Recommendations" width="20" style="vertical-align: middle; margin-right: 0.5rem;">
-  Recommended Actions
-</h3>
-<ul style="font-size: 1.1rem; padding-left: 1.5rem; list-style: none;">
-  <% personalized.forEach(r => { %>
-    <li style="margin-bottom: 0.75rem;">
-      <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/arrow-right-circle.svg" alt="Arrow" width="16" style="vertical-align: middle; margin-right: 0.5rem;">
-      <%= r.text %><br>
-      <a href="<%= r.link %>" target="_blank" style="font-size: 0.95rem; color: #3366cc;">Read more</a>
-    </li>
-  <% }) %>
-</ul>
-
-    <% } else { %>
-      <div class="safe" style="margin-top: 2rem;">
-        <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/check-circle-fill.svg" alt="Safe" width="20" style="vertical-align: middle; margin-right: 0.5rem;">
-        Solid!! — no known breaches found for your email.
-      </div>
-    <% } %>
-
-    <% if (comparison) { %>
-      <h3 style="font-size: 1.4rem; margin-top: 2rem;">
-        <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/arrow-repeat.svg" alt="Compare" width="20" style="vertical-align: middle; margin-right: 0.5rem;">
-        Comparison from Previous Scan
-      </h3>
-      <p>Previous Score: <strong><%= comparison.previousScore %></strong></p>
-      <p>Current Score: <strong><%= comparison.currentScore %></strong></p>
-      <p>
-        <%= comparison.currentScore < comparison.previousScore ? "✅ Your hygiene has improved!" :
-             comparison.currentScore > comparison.previousScore ? "⚠️ Your risk has increased." :
-             "➖ No change in score." %>
-      </p>
-    <% } else { %>
-      <p style="margin-top: 2rem;">🔄 This is your first scan. Return again to compare hygiene over time.</p>
-    <% } %>
-
-    <div style="text-align: center; margin-top: 2rem;">
-      <a href="/" class="scan-button">← Check Another Email</a>
-      <button onclick="window.print()" class="scan-button" style="margin-left: 1rem;">🖨️ Print as PDF</button>
-    </div>
+<% } else { %>
+  <div class="safe">
+    <strong>Solid!! — no known breaches found for your email.</strong>
   </div>
-
-  <!-- Matrix animation background -->
-  <script src="/js/script.js"></script>
-</body>
-</html>
+<% } %>

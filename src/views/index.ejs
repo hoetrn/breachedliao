@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>breachedliao.online</title>
   <link rel="stylesheet" href="/css/styles.css"/>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TFL3BF6TY5"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-TFL3BF6TY5');
+</script>
+
 </head>
 <body>
   <!-- GOV.SG-style Privacy Banner -->
@@ -21,7 +31,10 @@
       <input type="email" name="email" required placeholder="example@domain.com" />
       <div class="g-recaptcha" data-sitekey="6LfMnkQrAAAAAFtmlhnGtZNDQkvAWoiZhGzSnCY7"></div>
       <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-      <button class="scan-button" type="submit">Steady! Help Me Check Now</button>
+      <button class="scan-button" type="submit" onclick="gtag('event', 'submit_check', { event_category: 'Email Scan', event_label: 'Homepage Scan' });">
+  Steady! Help Me Check Now
+</button>
+
     </form>
 
     <footer>
