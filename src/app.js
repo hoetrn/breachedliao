@@ -42,6 +42,25 @@ app.get("/", (req, res) => {
 
 app.post("/check", async (req, res) => {
   const email = req.body.email;
+    const recaptchaToken = req.body["g-recaptcha-response"];
+  if (!recaptchaToken) {
+    return res.render("error", { message: "CAPTCHA not completed." });
+  }
+
+  const verifyURL = `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET}&response=${recaptchaToken}`;
+
+  try {
+    const captchaRes = await fetch(verifyURL, { method: "POST" });
+    const captchaData = await captchaRes.json();
+
+    if (!captchaData.success) {
+      return res.render("error", { message: "CAPTCHA verification failed." });
+    }
+  } catch (err) {
+    console.error("CAPTCHA verification error:", err);
+    return res.render("error", { message: "Error verifying CAPTCHA." });
+  }
+
   if (!email) {
     return res.render("error", { message: "No email provided." });
   }

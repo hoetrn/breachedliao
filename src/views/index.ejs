@@ -12,10 +12,10 @@
     <p class="tagline">Check if your email kena breached — Safe, Fast, and FREE.</p>
 
     <form action="/check" method="POST">
-      <label for="email">Enter your email address:</label>
-      <input type="email" id="email" name="email" required placeholder="example@domain.com"/>
-      <p class="privacy-banner">Your data will not be saved. A secure cookie tracks hygiene scores anonymously.</p>
-      <button type="submit">Steady, help me check!</button>
+      <input type="email" name="email" required placeholder="example@domain.com" />
+      <div class="g-recaptcha" data-sitekey="6LfMnkQrAAAAAFtmlhnGtZNDQkvAWoiZhGzSnCY7"></div>
+      <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+      <button class="scan-button" type="submit">Check Now</button>
     </form>
 
     <footer>
