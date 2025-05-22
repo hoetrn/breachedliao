@@ -10,7 +10,7 @@ Since 2004, Singapore has recorded 33.7 million data breaches, placing it 38th a
 ## 💡 Description of Web App
 A user-friendly web application that enables individuals to easily check if their email address has been exposed in data breaches, spam databases, or leaked repositories. The app generates a comprehensive hygiene report that includes a risk score and personalised recommendations to help users better secure their personal information and data. To ensure user trust, the web app features a clear privacy assurance banner with no user log in required. This approach not only addresses data security concerns but also reinforces user confidence by prioritising transparency and privacy.
 
-TLDR: A user-friendly web app that lets anyone check if their email address has been exposed in data breaches, and provides recommendations.
+TLDR: A user-friendly web app that lets anyone check if their email address has been exposed in data breaches.
 
 ---
 
@@ -31,8 +31,7 @@ Visit: [https://breachedliao.online](https://breachedliao.online)
 - **Email breach check** via HaveIBeenPwned API
 - **Risk score** (0–100) based on breach count and severity
 - **Hygiene report** with practical security recommendations
-- **Minimalist design** with Singaporean flair 🇸🇬
-- **Privacy banner** to reassure users: `We protect your data and never store your searches.`
+- **Privacy banner** to reassure users: 'Your data will not be saved. A secure cookie tracks hygiene scores anonymously.'
 
 ---
 
