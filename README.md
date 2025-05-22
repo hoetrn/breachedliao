@@ -28,6 +28,7 @@ Visit: [https://breachedliao.online](https://breachedliao.online)
 
 ## 🔐 Key Features
 - **No login required** — user comparison tracked anonymously via secure cookie
+- **CAPTCHA** to enhance security and avoid bots
 - **Email breach check** via HaveIBeenPwned API
 - **Risk score** (0–100) based on breach count and severity
 - **Hygiene report** with practical security recommendations
