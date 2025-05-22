@@ -6,17 +6,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Hygiene Report</title>
   <link rel="stylesheet" href="/css/styles.css"/>
+  <style>
+    .result-card {
+      background-color: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(4px);
+    }
+    @media print {
+      canvas#matrix-bg {
+        display: none !important;
+      }
+    }
+  </style>
 </head>
 <body>
   <div class="container result-card">
     <h1 class="gradient-text">Hygiene Report for <%= email %></h1>
 
-    <% let trafficColor = riskScore <= 33 ? 'green' : riskScore <= 66 ? 'orange' : 'red'; %>
-    <% let riskLabel = riskScore <= 33 ? 'Low Risk' : riskScore <= 66 ? 'Moderate Risk' : 'High Risk'; %>
+    <% let riskLabel = riskScore <= 33 ? "Low Risk" : riskScore <= 66 ? "Moderate Risk" : "High Risk"; %>
+    <% let riskClass = riskScore <= 33 ? "risk-low" : riskScore <= 66 ? "risk-moderate" : "risk-high"; %>
 
     <div style="text-align: center; margin-top: 1rem;">
       <div style="display: flex; justify-content: center; align-items: center; gap: 1rem;">
-        <div style="width: 20px; height: 20px; border-radius: 50%; background-color: '<%= trafficColor %>';"></div>
+        <div class="risk-dot <%= riskClass %>"></div>
         <h2 style="font-size: 1.8rem; margin: 0;">
           <strong>
             <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/graph-up.svg" alt="Graph Icon" width="24" style="vertical-align: middle;" />
@@ -78,5 +89,8 @@
       <button onclick="window.print()" class="scan-button" style="margin-left: 1rem;">🖨️ Print as PDF</button>
     </div>
   </div>
+
+  <!-- Matrix animation background -->
+  <script src="/js/script.js"></script>
 </body>
 </html>

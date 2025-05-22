@@ -124,6 +124,21 @@ footer .disclaimer {
   border-top: 1px solid #eee;
 }
 
+.risk-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+.risk-low {
+  background-color: green;
+}
+.risk-moderate {
+  background-color: orange;
+}
+.risk-high {
+  background-color: red;
+}
+
 /* 📱 Responsive Design for Mobile */
 @media (max-width: 600px) {
   .container {
