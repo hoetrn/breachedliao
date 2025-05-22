@@ -37,52 +37,50 @@ app.get("/check", (req, res) => {
 });
 
 app.post("/check", async (req, res) => {
+  const email = req.body.email;
+  if (!email) {
+    return res.render("error", { message: "No email provided." });
+  }
+
+  let comparisonToken = req.cookies.comparisonToken;
+  if (!comparisonToken) {
+    comparisonToken = crypto.randomBytes(16).toString("hex");
+    res.cookie("comparisonToken", comparisonToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 1000 * 60 * 60 * 24 * 365 // 1 year
+    });
+  }
+
+  const emailHash = crypto.createHash("sha256").update(email).digest("hex");
+  let breaches = [];
+
   try {
-    const email = req.body.email;
-    const url = `https://haveibeenpwned.com/api/v3/breachedaccount/${encodeURIComponent(email)}?truncateResponse=false&includeUnverified=true`;
-    let comparisonToken = req.cookies.comparisonToken;
-
-    if (!comparisonToken) {
-      comparisonToken = generateToken();
-      res.cookie("comparisonToken", comparisonToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 1000 * 60 * 60 * 24 * 365 // 1 year
-      });
-    }
-
-    // hibpKey is not defined in your code, make sure to define it or get it from env
-    const hibpKey = process.env.HIBP_API_KEY;
-
     const hibpRes = await fetch(`https://haveibeenpwned.com/api/v3/breachedaccount/${encodeURIComponent(email)}?truncateResponse=false`, {
       method: "GET",
       headers: {
-        "hibp-api-key": hibpKey,
+        "hibp-api-key": process.env.HIBP_API_KEY,
         "User-Agent": "breachedliao-online"
       }
     });
 
-    let breaches = [];
+    console.log(`HIBP response: ${hibpRes.status}`);
+
     if (hibpRes.status === 200) {
       breaches = await hibpRes.json();
     } else if (hibpRes.status === 404) {
-      breaches = []; // No breach found
+      breaches = []; // No breach — expected for clean emails
     } else {
-      throw new Error(`HIBP API error ${hibpRes.status}`);
+      throw new Error(`HIBP API error status: ${hibpRes.status}`);
     }
-  } catch (err) {
-    console.error("Failed to query HIBP API:", err.message);
-    return res.render("error", { message: "Something went wrong with the HIBP API." });
-  }
+
     const riskScore = Math.min(breaches.length * 20, 100);
     const recommendations = [
-      "Change your password",
+      "Change your password regularly",
       "Enable two-factor authentication",
-      "Check account recovery settings"
+      "Check account recovery settings",
+      "Avoid reusing passwords across accounts"
     ];
-
-    // emailHash is not defined in your code, hash the email before using
-    const emailHash = hashInput(email);
 
     await pool.query(
       "INSERT INTO hygiene_results (email_hash, breaches_found, risk_score, recommendations, comparison_token) VALUES ($1, $2, $3, $4, $5)",
@@ -100,7 +98,7 @@ app.post("/check", async (req, res) => {
       comparison = {
         previousScore: earlier.risk_score,
         currentScore: latest.risk_score,
-        improvement: latest.risk_score - earlier.risk_score
+        improvement: earlier.risk_score - latest.risk_score
       };
     }
 
@@ -112,6 +110,11 @@ app.post("/check", async (req, res) => {
       comparison,
       comparisonToken
     });
+
+  } catch (err) {
+    console.error("Error during /check:", err.message);
+    return res.render("error", { message: "Something went wrong during the scan. Please try again later." });
+  }
 });
 
 // ✅ This MUST be at the end
