@@ -37,25 +37,25 @@
           <% }) %>
         </ul>
       </div>
+
+      <h3 style="font-size: 1.4rem; margin-top: 2rem;">
+        <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/shield-check.svg" alt="Recommendations" width="20" style="vertical-align: middle; margin-right: 0.5rem;">
+        Recommended Actions
+      </h3>
+      <ul style="font-size: 1.1rem; padding-left: 1.5rem;">
+        <% recommendations.forEach(r => { %>
+          <li>
+            <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/arrow-right-circle.svg" alt="Arrow" width="16" style="vertical-align: middle; margin-right: 0.5rem;">
+            <%= r %>
+          </li>
+        <% }) %>
+      </ul>
     <% } else { %>
       <div class="safe" style="margin-top: 2rem;">
         <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/check-circle-fill.svg" alt="Safe" width="20" style="vertical-align: middle; margin-right: 0.5rem;">
         Great news — no known breaches found for your email.
       </div>
     <% } %>
-
-    <h3 style="font-size: 1.4rem; margin-top: 2rem;">
-      <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/shield-check.svg" alt="Recommendations" width="20" style="vertical-align: middle; margin-right: 0.5rem;">
-      Recommended Actions
-    </h3>
-    <ul style="font-size: 1.1rem; padding-left: 1.5rem;">
-      <% recommendations.forEach(r => { %>
-        <li>
-          <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/arrow-right-circle.svg" alt="Arrow" width="16" style="vertical-align: middle; margin-right: 0.5rem;">
-          <%= r %>
-        </li>
-      <% }) %>
-    </ul>
 
     <% if (comparison) { %>
       <h3 style="font-size: 1.4rem; margin-top: 2rem;">
@@ -65,8 +65,8 @@
       <p>Previous Score: <strong><%= comparison.previousScore %></strong></p>
       <p>Current Score: <strong><%= comparison.currentScore %></strong></p>
       <p>
-        <%= comparison.improvement < 0 ? "✅ Your hygiene has improved!" :
-             comparison.improvement > 0 ? "⚠️ Your risk has increased." :
+        <%= comparison.currentScore < comparison.previousScore ? "✅ Your hygiene has improved!" :
+             comparison.currentScore > comparison.previousScore ? "⚠️ Your risk has increased." :
              "➖ No change in score." %>
       </p>
     <% } else { %>

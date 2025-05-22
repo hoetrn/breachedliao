@@ -54,6 +54,7 @@ app.post("/check", async (req, res) => {
       secure: process.env.NODE_ENV === "production",
       maxAge: 1000 * 60 * 60 * 24 * 365 // 1 year
     });
+    
   }
 
   const emailHash = crypto.createHash("sha256").update(email).digest("hex");
