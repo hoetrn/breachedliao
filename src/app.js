@@ -1,4 +1,3 @@
-
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
@@ -73,22 +72,25 @@ app.post("/check", async (req, res) => {
       let score = 0;
       breaches.forEach(breach => {
         let breachScore = 10;
-        const sensitiveFields = ["Passwords", "Credit Cards", "SSNs", "Bank Accounts", "Health records"];
-        const compromisedData = breach.DataClasses || [];
+const sensitiveFields = ["Passwords", "Credit Cards", "SSNs", "Bank Accounts", "Health records"];
+const compromisedData = breach.DataClasses || [];
 
-        const sensitivityFactor = compromisedData.filter(data =>
-          sensitiveFields.includes(data)
-        ).length;
+const sensitivityFactor = compromisedData.filter(data =>
+  sensitiveFields.includes(data)
+).length;
 
-        breachScore += sensitivityFactor * 10;
+breachScore += sensitivityFactor * 10;
+const breachDate = breach.BreachDate ? new Date(breach.BreachDate) : null;
+const formattedDate = breachDate ? breachDate.toLocaleDateString('en-SG', { year: 'numeric', month: 'short', day: 'numeric' }) : 'Unknown';
 
-        const breachDate = new Date(breach.BreachDate);
         const now = new Date();
-        const yearsAgo = (now - breachDate) / (1000 * 60 * 60 * 24 * 365);
-        if (yearsAgo <= 1) {
-          breachScore += 10;
-        } else if (yearsAgo <= 3) {
-          breachScore += 5;
+        if (breachDate) {
+          const yearsAgo = (now - breachDate) / (1000 * 60 * 60 * 24 * 365);
+          if (yearsAgo <= 1) {
+            breachScore += 10;
+          } else if (yearsAgo <= 3) {
+            breachScore += 5;
+          }
         }
 
         score += Math.min(breachScore, 30);
