@@ -1,3 +1,4 @@
+
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
@@ -29,58 +30,31 @@ function generateToken() {
   return crypto.randomBytes(16).toString("hex");
 }
 
-app.get("/check", (req, res) => {
-  res.render("error", {
-    message: "Please enter your email on the homepage form to run a check."
-  });
-});
 app.get("/", (req, res) => {
-  res.render("index", {
-    message: "Welcome to BreachedLiao! Enter your email to check for breaches."
-  });
+  res.render("index");
+});
+
+app.get("/check", (req, res) => {
+  res.render("error", { message: "Please enter your email on the homepage form to run a check." });
 });
 
 app.post("/check", async (req, res) => {
   const email = req.body.email;
-    const recaptchaToken = req.body["g-recaptcha-response"];
-  if (!recaptchaToken) {
-    return res.render("error", { message: "CAPTCHA not completed." });
-  }
-
-  const verifyURL = `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET}&response=${recaptchaToken}`;
-
-  try {
-    const captchaRes = await fetch(verifyURL, { method: "POST" });
-    const captchaData = await captchaRes.json();
-
-    if (!captchaData.success) {
-      return res.render("error", { message: "CAPTCHA verification failed." });
-    }
-  } catch (err) {
-    console.error("CAPTCHA verification error:", err);
-    return res.render("error", { message: "Error verifying CAPTCHA." });
-  }
-
-  if (!email) {
-    return res.render("error", { message: "No email provided." });
-  }
-
   let comparisonToken = req.cookies.comparisonToken;
+
   if (!comparisonToken) {
-    comparisonToken = crypto.randomBytes(16).toString("hex");
+    comparisonToken = generateToken();
     res.cookie("comparisonToken", comparisonToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      maxAge: 1000 * 60 * 60 * 24 * 365 // 1 year
+      maxAge: 1000 * 60 * 60 * 24 * 365
     });
-    
   }
 
-  const emailHash = crypto.createHash("sha256").update(email).digest("hex");
-  let breaches = [];
+  const emailHash = hashInput(email);
 
   try {
-    const hibpRes = await fetch(`https://haveibeenpwned.com/api/v3/breachedaccount/${encodeURIComponent(email)}?truncateResponse=false`, {
+    const hibpRes = await fetch(`https://haveibeenpwned.com/api/v3/breachedaccount/${email}`, {
       method: "GET",
       headers: {
         "hibp-api-key": process.env.HIBP_API_KEY,
@@ -88,17 +62,43 @@ app.post("/check", async (req, res) => {
       }
     });
 
-    console.log(`HIBP response: ${hibpRes.status}`);
-
+    let breaches = [];
     if (hibpRes.status === 200) {
       breaches = await hibpRes.json();
-    } else if (hibpRes.status === 404) {
-      breaches = []; // No breach — expected for clean emails
-    } else {
-      throw new Error(`HIBP API error status: ${hibpRes.status}`);
     }
 
-    const riskScore = Math.min(breaches.length * 20, 100);
+    function computeRiskScore(breaches) {
+      if (!breaches || breaches.length === 0) return 0;
+
+      let score = 0;
+      breaches.forEach(breach => {
+        let breachScore = 10;
+        const sensitiveFields = ["Passwords", "Credit Cards", "SSNs", "Bank Accounts", "Health records"];
+        const compromisedData = breach.DataClasses || [];
+
+        const sensitivityFactor = compromisedData.filter(data =>
+          sensitiveFields.includes(data)
+        ).length;
+
+        breachScore += sensitivityFactor * 10;
+
+        const breachDate = new Date(breach.BreachDate);
+        const now = new Date();
+        const yearsAgo = (now - breachDate) / (1000 * 60 * 60 * 24 * 365);
+        if (yearsAgo <= 1) {
+          breachScore += 10;
+        } else if (yearsAgo <= 3) {
+          breachScore += 5;
+        }
+
+        score += Math.min(breachScore, 30);
+      });
+
+      return Math.min(score, 100);
+    }
+
+    const riskScore = computeRiskScore(breaches);
+    const recommendations = []; // no longer used, handled in report.ejs
 
     await pool.query(
       "INSERT INTO hygiene_results (email_hash, breaches_found, risk_score, recommendations, comparison_token) VALUES ($1, $2, $3, $4, $5)",
@@ -116,7 +116,7 @@ app.post("/check", async (req, res) => {
       comparison = {
         previousScore: earlier.risk_score,
         currentScore: latest.risk_score,
-        improvement: earlier.risk_score - latest.risk_score
+        improvement: latest.risk_score - earlier.risk_score
       };
     }
 
@@ -128,16 +128,16 @@ app.post("/check", async (req, res) => {
       comparison,
       comparisonToken
     });
-
-  } catch (err) {
-    console.error("Error during /check:", err.message);
-    return res.render("error", { message: "Something went wrong during the scan. Please try again later." });
+  } catch (error) {
+    console.error("Error during /check:", error);
+    res.render("error", { message: "Something went wrong while checking the email." });
   }
 });
 
+app.use((req, res) => {
+  res.status(404).render("error", { message: "Page not found." });
+});
 
-
-// ✅ This MUST be at the end
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
