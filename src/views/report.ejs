@@ -1,54 +1,71 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Hygiene Report</title>
-  <link rel="stylesheet" href="/css/styles.css"/>
-</head>
-<body>
-  <div class="container">
-    <h1>Hygiene Report for <%= email %></h1>
 
-    <h2>📊 Risk Score: <%= riskScore %>/100</h2>
+<div class="container result-card">
+  <h1 class="gradient-text">🧾 Internet Hygiene Report for <%= email %></h1>
 
-    <% if (breaches.length > 0) { %>
-      <p class="alert">Wah, your email was found in <%= breaches.length %> breach(es)!</p>
-      <ul>
+<div style="text-align: center; margin-top: 1rem;">
+  <div style="display: flex; justify-content: center; align-items: center; gap: 1rem;">
+    <% let trafficColor = riskScore <= 33 ? 'green' : riskScore <= 66 ? 'orange' : 'red'; %>
+<div style="background-color: '<%= trafficColor %>'; width: 20px; height: 20px; border-radius: 50%;"></div>
+
+    <h2 style="font-size: 1.8rem; margin: 0;">
+      <strong>
+        <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/graph-up.svg" alt="Graph Icon" width="24" style="vertical-align: middle;" />
+        Risk Score: <%= riskScore %>/100
+      </strong>
+    </h2>
+  </div>
+  <p style="font-size: 1rem; color: #666; margin-top: 0.5rem;">
+    <%= riskScore <= 33 ? "Low Risk" :
+        riskScore <= 66 ? "Moderate Risk" : "High Risk" %>
+  </p>
+</div>
+
+
+  <% if (breaches.length > 0) { %>
+    <div class="alert">
+      <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/exclamation-triangle-fill.svg" alt="Warning" width="20" style="vertical-align: middle; margin-right: 0.5rem;">
+      <strong>Your email appeared in <%= breaches.length %> breach(es).</strong>
+      <ul style="margin-top: 0.5rem; padding-left: 1rem;">
         <% breaches.forEach(breach => { %>
-          <li><strong><%= breach.Name %></strong> - <%= breach.BreachDate %></li>
+          <li><strong><%= breach.Name %></strong> — Breached on <%= breach.BreachDate %></li>
         <% }) %>
       </ul>
-    <% } else { %>
-      <p class="safe">Steady pom pi pi! No breaches found.</p>
-    <% } %>
+    </div>
+  <% } else { %>
+    <div class="safe">
+      <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/check-circle-fill.svg" alt="Safe" width="20" style="vertical-align: middle; margin-right: 0.5rem;">
+      Great news — no known breaches found for your email.
+    </div>
+  <% } %>
 
-    <h3>🛠️ Recommendations:</h3>
-    <ul>
-      <% recommendations.forEach(r => { %>
-        <li><%= r %></li>
-      <% }) %>
-    </ul>
+  <h3 style="font-size: 1.4rem; margin-top: 2rem;">
+    <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/shield-check.svg" alt="Recommendations" width="20" style="vertical-align: middle; margin-right: 0.5rem;">
+    Recommended Actions
+  </h3>
+  <ul style="font-size: 1.1rem; padding-left: 1.5rem;">
+    <% recommendations.forEach(r => { %>
+      <li><img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/arrow-right-circle.svg" alt="Arrow" width="16" style="vertical-align: middle; margin-right: 0.5rem;"> <%= r %></li>
+    <% }) %>
+  </ul>
 
-    <% if (comparison) { %>
-      <h3>🔁 Comparison with Previous Scan:</h3>
-      <p>Previous Score: <%= comparison.previousScore %> → Current Score: <%= comparison.currentScore %></p>
-      <p>
-        <%= comparison.improvement > 0 ? "⚠️ Risk increased." :
-             comparison.improvement < 0 ? "✅ You're more secure now!" :
-             "No change in score." %>
-      </p>
-    <% } else { %>
-      <p>This is your first scan. Come back again to compare your hygiene score over time!</p>
-    <% } %>
-
-    <a href="/">← Check Another Email</a>
-    
-    <footer>
-    <p class="disclaimer">
-      Disclaimer: This website is created for learning purposes only. The information provided here should not be considered professional advice. Please note that we make no guarantees regarding the accuracy, completeness, or reliability of the contents of this website. Any actions you take based on the contents of this website are at your own risk. We are not liable for any losses or damages incurred from the use of this website.
+  <% if (comparison) { %>
+    <h3 style="font-size: 1.4rem; margin-top: 2rem;">
+      <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/arrow-repeat.svg" alt="Compare" width="20" style="vertical-align: middle; margin-right: 0.5rem;">
+      Comparison from Previous Scan
+    </h3>
+    <p>Previous Score: <strong><%= comparison.previousScore %></strong></p>
+    <p>Current Score: <strong><%= comparison.currentScore %></strong></p>
+    <p>
+      <%= comparison.improvement < 0 ? "✅ Your hygiene has improved!" :
+           comparison.improvement > 0 ? "⚠️ Your risk has increased." :
+           "➖ No change in score." %>
     </p>
-    </footer>
+  <% } else { %>
+    <p style="margin-top: 2rem;">🔄 This is your first scan. Return again to compare hygiene over time.</p>
+  <% } %>
+
+  <div style="text-align: center; margin-top: 2rem;">
+    <a href="/" class="scan-button">← Check Another Email</a>
+    <button onclick="window.print()" class="scan-button" style="margin-left: 1rem;">🖨️ Print as PDF</button>
   </div>
-</body>
-</html>
+</div>
