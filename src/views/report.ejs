@@ -9,7 +9,7 @@
 </head>
 <body>
   <div class="container result-card">
-    <h1 class="gradient-text">🧾 Hygiene Report for <%= email %></h1>
+    <h1 class="gradient-text">Hygiene Report for <%= email %></h1>
 
     <% let trafficColor = riskScore <= 33 ? 'green' : riskScore <= 66 ? 'orange' : 'red'; %>
     <% let riskLabel = riskScore <= 33 ? 'Low Risk' : riskScore <= 66 ? 'Moderate Risk' : 'High Risk'; %>
@@ -30,7 +30,7 @@
     <% if (breaches.length > 0) { %>
       <div class="alert" style="margin-top: 2rem;">
         <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/exclamation-triangle-fill.svg" alt="Warning" width="20" style="vertical-align: middle; margin-right: 0.5rem;">
-        <strong>Your email appeared in <%= breaches.length %> breach(es).</strong>
+        <strong>Wah! Your email appeared in <%= breaches.length %> breach(es).</strong>
         <ul style="margin-top: 0.5rem; padding-left: 1rem;">
           <% breaches.forEach(breach => { %>
             <li><strong><%= breach.Name %></strong> — Breached on <%= breach.BreachDate %></li>
@@ -53,7 +53,7 @@
     <% } else { %>
       <div class="safe" style="margin-top: 2rem;">
         <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/check-circle-fill.svg" alt="Safe" width="20" style="vertical-align: middle; margin-right: 0.5rem;">
-        Great news — no known breaches found for your email.
+        Solid!! — no known breaches found for your email.
       </div>
     <% } %>
 
