@@ -1,4 +1,3 @@
-
 const express = require("express");
 const path = require('path');
 const app = express();
@@ -54,6 +53,7 @@ app.post("/check", async (req, res) => {
   const emailHash = hashInput(email);
 
   try {
+    // Fetch current breaches
     const hibpRes = await fetch(`https://haveibeenpwned.com/api/v3/breachedaccount/${email}`, {
       method: "GET",
       headers: {
@@ -67,72 +67,38 @@ app.post("/check", async (req, res) => {
       breaches = await hibpRes.json();
     }
 
-    function computeRiskScore(breaches) {
-      if (!breaches || breaches.length === 0) return 0;
-
-      let score = 0;
-      breaches.forEach(breach => {
-        let breachScore = 10;
-        const sensitiveFields = ["Passwords", "Credit Cards", "SSNs", "Bank Accounts", "Health records"];
-        const compromisedData = breach.DataClasses || [];
-
-        const sensitivityFactor = compromisedData.filter(data =>
-          sensitiveFields.includes(data)
-        ).length;
-
-        breachScore += sensitivityFactor * 10;
-        const breachDate = breach.BreachDate ? new Date(breach.BreachDate) : null;
-
-        const now = new Date();
-        if (breachDate && !isNaN(breachDate)) {
-          const yearsAgo = (now - breachDate) / (1000 * 60 * 60 * 24 * 365);
-          if (yearsAgo <= 1) {
-            breachScore += 10;
-          } else if (yearsAgo <= 3) {
-            breachScore += 5;
-          }
-        }
-
-        score += Math.min(breachScore, 30);
-      });
-
-      return Math.min(score, 100);
-    }
-
+    // Compute risk score (your function here)
     const riskScore = computeRiskScore(breaches);
-    const recommendations = [];
 
-    await pool.query(
-      "INSERT INTO hygiene_results (email_hash, breaches_found, risk_score, recommendations, comparison_token) VALUES ($1, $2, $3, $4, $5)",
-      [emailHash, breaches.length, riskScore, recommendations, comparisonToken]
+    // Fetch previous scan for this user (by emailHash and comparisonToken)
+    let previousScan = null;
+    const prevResult = await pool.query(
+      "SELECT * FROM hygiene_results WHERE email_hash = $1 AND comparison_token = $2 ORDER BY checked_at DESC LIMIT 1",
+      [emailHash, comparisonToken]
     );
-
-    const previous = await pool.query(
-      "SELECT * FROM hygiene_results WHERE comparison_token = $1 ORDER BY timestamp DESC LIMIT 2",
-      [comparisonToken]
-    );
-
-    let comparison = null;
-    if (previous.rows.length === 2) {
-      const [latest, earlier] = previous.rows;
-      comparison = {
-        previousScore: earlier.risk_score,
-        currentScore: latest.risk_score,
-        improvement: latest.risk_score - earlier.risk_score
-      };
+    if (prevResult.rows.length > 0) {
+      previousScan = prevResult.rows[0];
     }
+
+    // Save current scan
+    await pool.query(
+      "INSERT INTO hygiene_results (email_hash, comparison_token, risk_score, checked_at, breach_count) VALUES ($1, $2, $3, NOW(), $4)",
+      [emailHash, comparisonToken, riskScore, breaches.length]
+    );
 
     res.render("report", {
       email,
       breaches,
       riskScore,
-      recommendations,
-      comparison,
-      comparisonToken
+      previousScan
     });
   } catch (error) {
-    console.error("Error during /check:", error);
-    res.render("error", { message: "Something went wrong while checking the email." });
+    res.render("report", {
+      email,
+      breaches: [],
+      riskScore: 0,
+      previousScan: null
+    });
   }
 });
 

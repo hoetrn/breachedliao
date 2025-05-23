@@ -127,20 +127,10 @@ footer .disclaimer {
   border-top: 1px solid #eee;
 }
 
-.risk-dot {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-}
-.risk-low {
-  background-color: green;
-}
-.risk-moderate {
-  background-color: orange;
-}
-.risk-high {
-  background-color: red;
-}
+.risk-dot.risk-low { background: #28a745; }
+.risk-dot.risk-moderate { background: #ffc107; }
+.risk-dot.risk-high { background: #dc3545; }
+.risk-dot { width: 18px; height: 18px; border-radius: 50%; display: inline-block; }
 
 /* 📱 Responsive Design for Mobile */
 @media (max-width: 600px) {

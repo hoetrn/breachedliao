@@ -43,7 +43,7 @@
               let formattedDate = "Unknown";
               if (breach.BreachDate) {
                 const d = new Date(breach.BreachDate);
-                if (!isNaN(d)) {
+                if (!isNaN(d.getTime())) {
                   formattedDate = d.toLocaleDateString("en-SG", { year: "numeric", month: "short", day: "numeric" });
                 }
               }
@@ -87,12 +87,19 @@
       </div>
     <% } %>
 
+    <% if (previousScan) { %>
+      <div class="alert" style="background: #e6f3ff; color: #00376c;">
+        <strong>Previous scan:</strong><br>
+        Date: <%= new Date(previousScan.checked_at).toLocaleString("en-SG") %><br>
+        Risk Score: <%= previousScan.risk_score %>/100<br>
+        Breach Count: <%= previousScan.breach_count %>
+      </div>
+    <% } %>
+
     <div style="text-align: center; margin-top: 2rem;">
       <a href="/" class="scan-button">← Check Another Email</a>
       <button onclick="window.print()" class="scan-button" style="margin-left: 1rem;">🖨️ Print as PDF</button>
     </div>
-
-    <pre><%= JSON.stringify(breach, null, 2) %></pre>
   </div>
   <script src="/js/script.js"></script>
 </body>
