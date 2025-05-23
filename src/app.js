@@ -54,17 +54,24 @@ app.post("/check", async (req, res) => {
 
   try {
     // Fetch current breaches
-    const hibpRes = await fetch(`https://haveibeenpwned.com/api/v3/breachedaccount/${email}`, {
+    const hibpRes = await fetch(`https://haveibeenpwned.com/api/v3/breachedaccount/${encodeURIComponent(email)}`, {
       method: "GET",
       headers: {
         "hibp-api-key": process.env.HIBP_API_KEY,
-        "User-Agent": "breachedliao-online"
+        "User-Agent": "breachedliao.online"
       }
     });
 
     let breaches = [];
     if (hibpRes.status === 200) {
       breaches = await hibpRes.json();
+    } else if (hibpRes.status === 404) {
+      breaches = []; // No breaches found, this is normal
+    } else {
+      // Log error for debugging
+      const errorText = await hibpRes.text();
+      console.error(`HIBP API error: ${hibpRes.status} - ${errorText}`);
+      breaches = [];
     }
 
     // Compute risk score (your function here)
@@ -93,6 +100,7 @@ app.post("/check", async (req, res) => {
       previousScan
     });
   } catch (error) {
+    console.error(error);
     res.render("report", {
       email,
       breaches: [],
