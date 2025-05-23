@@ -25,7 +25,8 @@
 
     <div style="text-align: center; margin-top: 1rem;">
       <div style="display: flex; justify-content: center; align-items: center; gap: 1rem;">
-        <div class="risk-dot <%= riskLabel.toLowerCase().replace(' ', '-') %>"></div>
+        <!-- Traffic light dot -->
+        <div class="risk-dot risk-<%= riskLabel.toLowerCase().replace(' ', '-') %>"></div>
         <h2 style="font-size: 1.8rem; margin: 0;">
           <strong>Risk Score: <%= riskScore %>/100</strong>
         </h2>
@@ -38,7 +39,15 @@
         <strong>Wah! Your email appeared in <%= breaches.length %> breach(es).</strong>
         <ul style="margin-top: 0.5rem; padding-left: 1rem;">
           <% breaches.forEach(breach => { %>
-            <% const formattedDate = breach.BreachDate ? new Date(breach.BreachDate).toLocaleDateString("en-SG", { year: "numeric", month: "short", day: "numeric" }) : "Unknown"; %>
+            <% 
+              let formattedDate = "Unknown";
+              if (breach.BreachDate) {
+                const d = new Date(breach.BreachDate);
+                if (!isNaN(d)) {
+                  formattedDate = d.toLocaleDateString("en-SG", { year: "numeric", month: "short", day: "numeric" });
+                }
+              }
+            %>
             <li><strong><%= breach.Name %></strong> — Breached on <%= formattedDate %></li>
           <% }) %>
         </ul>
@@ -82,6 +91,8 @@
       <a href="/" class="scan-button">← Check Another Email</a>
       <button onclick="window.print()" class="scan-button" style="margin-left: 1rem;">🖨️ Print as PDF</button>
     </div>
+
+    <pre><%= JSON.stringify(breach, null, 2) %></pre>
   </div>
   <script src="/js/script.js"></script>
 </body>
