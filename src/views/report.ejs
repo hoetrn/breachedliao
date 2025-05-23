@@ -6,8 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Hygiene Report</title>
   <link rel="stylesheet" href="/css/styles.css" />
-
-  <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-TFL3BF6TY5"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -18,7 +16,6 @@
 </head>
 <body>
   <canvas id="matrix-bg"></canvas>
-
   <div class="container result-card">
     <h1 class="gradient-text">Hygiene Report for <%= email %></h1>
 
@@ -28,9 +25,7 @@
     <div style="text-align: center; margin-top: 1rem;">
       <div style="display: flex; justify-content: center; align-items: center; gap: 1rem;">
         <div class="risk-dot <%= riskLabel.toLowerCase().replace(' ', '-') %>"></div>
-        <h2 style="font-size: 1.8rem; margin: 0;">
-          <strong>Risk Score: <%= riskScore %>/100</strong>
-        </h2>
+        <h2 style="font-size: 1.8rem; margin: 0;"><strong>Risk Score: <%= riskScore %>/100</strong></h2>
       </div>
       <p style="font-size: 1rem; color: #666; margin-top: 0.5rem;"><%= riskLabel %></p>
     </div>
@@ -47,10 +42,49 @@
           <% }) %>
         </ul>
       </div>
+
+      <h3>Recommended Actions</h3>
+      <% const allRecommendations = {
+        low: [
+          { text: "Check your account recovery settings", link: "https://support.google.com/accounts/answer/183723?hl=en" },
+          { text: "Review your email forwarding rules", link: "https://proton.me/support/email-forwarding" }
+        ],
+        moderate: [
+          { text: "Change your password regularly", link: "https://www.csa.gov.sg/our-programmes/cybersecurity-outreach/sg-cyber-safe-seniors/reading-and-printable-resources/infographics-and-posters/activities" },
+          { text: "Enable two-factor authentication", link: "https://www.csa.gov.sg/our-programmes/cybersecurity-outreach/cybersecurity-campaigns/better-cyber-safe-than-sorry-campaign/use-strong-passwords-and-enable-2fa#688948caa2cf6675137a669fe16556ee" }
+        ],
+        high: [
+          { text: "Use a password manager to generate strong passwords", link: "https://www.csa.gov.sg/our-programmes/cybersecurity-outreach/cybersecurity-campaigns/better-cyber-safe-than-sorry-campaign/use-strong-passwords-and-enable-2fa" },
+          { text: "Secure breached accounts immediately", link: "https://www.haveibeenpwned.com/FAQs" }
+        ]
+      };
+      let severityLevel = "low";
+      if (riskScore > 66) severityLevel = "high";
+      else if (riskScore > 33) severityLevel = "moderate";
+      const personalized = allRecommendations[severityLevel]; %>
+
+      <ul style="list-style: none; padding-left: 0;">
+        <% personalized.forEach(r => { %>
+          <li>➤ <%= r.text %> — <a href="<%= r.link %>" target="_blank">Read more</a></li>
+        <% }) %>
+      </ul>
     <% } else { %>
       <div class="safe" style="margin-top: 2rem;">
         <strong>Solid!! — no known breaches found for your email.</strong>
       </div>
+    <% } %>
+
+    <% if (previousScan) { %>
+      <h3 style="margin-top: 2rem;">Comparison from Previous Scan</h3>
+      <p>Previous Score: <strong><%= previousScan.risk_score %></strong></p>
+      <p>Current Score: <strong><%= riskScore %></strong></p>
+      <p>
+        <%= riskScore < previousScan.risk_score ? "✅ Your hygiene has improved!" :
+             riskScore > previousScan.risk_score ? "⚠️ Your risk has increased." :
+             "➖ No change in score." %>
+      </p>
+    <% } else { %>
+      <p style="margin-top: 2rem;">🔄 This is your first scan. Return again to compare hygiene over time.</p>
     <% } %>
 
     <div style="text-align: center; margin-top: 2rem;">
@@ -58,7 +92,6 @@
       <button onclick="window.print()" class="scan-button" style="margin-left: 1rem;">🖨️ Print as PDF</button>
     </div>
   </div>
-
   <script src="/js/script.js"></script>
 </body>
 </html>

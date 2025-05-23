@@ -100,13 +100,7 @@ app.post("/check", async (req, res) => {
     console.log("HIBP response status:", hibpRes.status);
 
     if (hibpRes.status === 200) {
-      const rawBody = await hibpRes.text();
-      console.log("HIBP raw response:", rawBody);
-      try {
-        breaches = JSON.parse(rawBody);
-      } catch (err) {
-        console.error("Error parsing HIBP response JSON:", err);
-      }
+      breaches = await hibpRes.json();
     } else if (hibpRes.status === 404) {
       console.log("No breaches found.");
     } else {
