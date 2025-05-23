@@ -1,3 +1,4 @@
+
 const express = require("express");
 const path = require('path');
 const app = express();
@@ -28,7 +29,6 @@ function hashInput(input) {
 function generateToken() {
   return crypto.randomBytes(16).toString("hex");
 }
-
 
 function computeRiskScore(breaches) {
   if (!breaches || breaches.length === 0) return 0;
@@ -84,10 +84,10 @@ app.post("/check", async (req, res) => {
   }
 
   const emailHash = hashInput(email);
+  let breaches = [];
 
   try {
-    // Fetch current breaches
-    const hibpRes = await fetch(`https://haveibeenpwned.com/api/v3/breachedaccount/${encodeURIComponent(email)}`, {
+    const hibpRes = await fetch(`https://haveibeenpwned.com/api/v3/breachedaccount/${encodeURIComponent(email)}?truncateResponse=false`, {
       method: "GET",
       headers: {
         "hibp-api-key": process.env.HIBP_API_KEY,
@@ -95,22 +95,17 @@ app.post("/check", async (req, res) => {
       }
     });
 
-    let breaches = [];
     if (hibpRes.status === 200) {
       breaches = await hibpRes.json();
     } else if (hibpRes.status === 404) {
-      breaches = []; // No breaches found, this is normal
+      breaches = []; // No breaches found
     } else {
-      // Log error for debugging
       const errorText = await hibpRes.text();
       console.error(`HIBP API error: ${hibpRes.status} - ${errorText}`);
-      breaches = [];
     }
 
-    // Compute risk score (your function here)
     const riskScore = computeRiskScore(breaches);
 
-    // Fetch previous scan for this user (by emailHash and comparisonToken)
     let previousScan = null;
     const prevResult = await pool.query(
       "SELECT * FROM hygiene_results WHERE email_hash = $1 AND comparison_token = $2 ORDER BY checked_at DESC LIMIT 1",
@@ -120,7 +115,6 @@ app.post("/check", async (req, res) => {
       previousScan = prevResult.rows[0];
     }
 
-    // Save current scan
     await pool.query(
       "INSERT INTO hygiene_results (email_hash, comparison_token, risk_score, checked_at, breach_count) VALUES ($1, $2, $3, NOW(), $4)",
       [emailHash, comparisonToken, riskScore, breaches.length]
@@ -133,7 +127,7 @@ app.post("/check", async (req, res) => {
       previousScan
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error during /check:", error);
     res.render("report", {
       email,
       breaches: [],
