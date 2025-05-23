@@ -29,12 +29,37 @@ function generateToken() {
   return crypto.randomBytes(16).toString("hex");
 }
 
+
 function computeRiskScore(breaches) {
-  // Example: 0 if no breaches, 100 if 3+ breaches, 33/66 for 1/2 breaches
   if (!breaches || breaches.length === 0) return 0;
-  if (breaches.length === 1) return 33;
-  if (breaches.length === 2) return 66;
-  return 100;
+
+  let score = 0;
+  breaches.forEach(breach => {
+    let breachScore = 10;
+    const sensitiveFields = ["Passwords", "Credit Cards", "SSNs", "Bank Accounts", "Health records"];
+    const compromisedData = breach.DataClasses || [];
+
+    const sensitivityFactor = compromisedData.filter(data =>
+      sensitiveFields.includes(data)
+    ).length;
+
+    breachScore += sensitivityFactor * 10;
+
+    const breachDate = breach.BreachDate ? new Date(breach.BreachDate) : null;
+    const now = new Date();
+    if (breachDate && !isNaN(breachDate)) {
+      const yearsAgo = (now - breachDate) / (1000 * 60 * 60 * 24 * 365);
+      if (yearsAgo <= 1) {
+        breachScore += 10;
+      } else if (yearsAgo <= 3) {
+        breachScore += 5;
+      }
+    }
+
+    score += Math.min(breachScore, 30);
+  });
+
+  return Math.min(score, 100);
 }
 
 app.get("/", (req, res) => {

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,7 +18,8 @@
 </head>
 <body>
   <canvas id="matrix-bg"></canvas>
-  <div class="container">
+
+  <div class="container result-card">
     <h1 class="gradient-text">Hygiene Report for <%= email %></h1>
 
     <% let trafficColor = riskScore <= 33 ? 'green' : riskScore <= 66 ? 'orange' : 'red'; %>
@@ -25,8 +27,7 @@
 
     <div style="text-align: center; margin-top: 1rem;">
       <div style="display: flex; justify-content: center; align-items: center; gap: 1rem;">
-        <!-- Traffic light dot -->
-        <div class="risk-dot risk-<%= riskLabel.toLowerCase().replace(' ', '-') %>"></div>
+        <div class="risk-dot <%= riskLabel.toLowerCase().replace(' ', '-') %>"></div>
         <h2 style="font-size: 1.8rem; margin: 0;">
           <strong>Risk Score: <%= riskScore %>/100</strong>
         </h2>
@@ -39,60 +40,16 @@
         <strong>Wah! Your email appeared in <%= breaches.length %> breach(es).</strong>
         <ul style="margin-top: 0.5rem; padding-left: 1rem;">
           <% breaches.forEach(breach => { %>
-            <% 
-              let formattedDate = "Unknown";
-              if (breach.BreachDate) {
-                const d = new Date(breach.BreachDate);
-                if (!isNaN(d.getTime())) {
-                  formattedDate = d.toLocaleDateString("en-SG", { year: "numeric", month: "short", day: "numeric" });
-                }
-              }
-            %>
+            <% const formattedDate = breach.BreachDate && !isNaN(Date.parse(breach.BreachDate)) 
+              ? new Date(breach.BreachDate).toLocaleDateString("en-SG", { year: "numeric", month: "short", day: "numeric" }) 
+              : "Unknown"; %>
             <li><strong><%= breach.Name %></strong> — Breached on <%= formattedDate %></li>
           <% }) %>
         </ul>
       </div>
-
-      <h3 style="font-size: 1.4rem; margin-top: 2rem;">Recommended Actions</h3>
-      <ul style="font-size: 1.1rem; padding-left: 1.5rem; list-style: none;">
-        <% const allRecommendations = {
-          low: [
-            { text: "Check your account recovery settings", link: "https://support.google.com/accounts/answer/183723?hl=en" },
-            { text: "Review your email forwarding rules", link: "https://proton.me/support/email-forwarding" }
-          ],
-          moderate: [
-            { text: "Change your password regularly", link: "https://www.csa.gov.sg/our-programmes/cybersecurity-outreach/sg-cyber-safe-seniors/reading-and-printable-resources/infographics-and-posters/activities" },
-            { text: "Enable two-factor authentication", link: "https://www.csa.gov.sg/our-programmes/cybersecurity-outreach/cybersecurity-campaigns/better-cyber-safe-than-sorry-campaign/use-strong-passwords-and-enable-2fa#688948caa2cf6675137a669fe16556ee" }
-          ],
-          high: [
-            { text: "Use a password manager to generate strong passwords", link: "https://www.csa.gov.sg/our-programmes/cybersecurity-outreach/cybersecurity-campaigns/better-cyber-safe-than-sorry-campaign/use-strong-passwords-and-enable-2fa" },
-            { text: "Secure breached accounts immediately", link: "https://www.haveibeenpwned.com/FAQs" }
-          ]
-        };
-        let severityLevel = "low";
-        if (riskScore > 66) severityLevel = "high";
-        else if (riskScore > 33) severityLevel = "moderate";
-        const personalized = allRecommendations[severityLevel]; %>
-
-        <% personalized.forEach(r => { %>
-          <li style="margin-bottom: 0.75rem;">
-            ➤ <%= r.text %><br>
-            <a href="<%= r.link %>" target="_blank" style="font-size: 0.95rem; color: #3366cc;">Read more</a>
-          </li>
-        <% }) %>
-      </ul>
     <% } else { %>
       <div class="safe" style="margin-top: 2rem;">
         <strong>Solid!! — no known breaches found for your email.</strong>
-      </div>
-    <% } %>
-
-    <% if (previousScan) { %>
-      <div class="alert" style="background: #e6f3ff; color: #00376c;">
-        <strong>Previous scan:</strong><br>
-        Date: <%= new Date(previousScan.checked_at).toLocaleString("en-SG") %><br>
-        Risk Score: <%= previousScan.risk_score %>/100<br>
-        Breach Count: <%= previousScan.breach_count %>
       </div>
     <% } %>
 
@@ -101,6 +58,7 @@
       <button onclick="window.print()" class="scan-button" style="margin-left: 1rem;">🖨️ Print as PDF</button>
     </div>
   </div>
+
   <script src="/js/script.js"></script>
 </body>
 </html>

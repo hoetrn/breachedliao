@@ -159,3 +159,17 @@ footer .disclaimer {
   }
 
 }
+
+
+/* Traffic light dot colors */
+.risk-dot.low-risk {
+  background-color: #2e7d32;
+}
+
+.risk-dot.moderate-risk {
+  background-color: #f9a825;
+}
+
+.risk-dot.high-risk {
+  background-color: #c62828;
+}
