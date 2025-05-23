@@ -1,6 +1,7 @@
+
 const express = require("express");
 const path = require('path');
-app.use(express.static(path.join(__dirname, 'public')));
+const app = express();
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const fetch = require("node-fetch");
@@ -8,7 +9,6 @@ const crypto = require("crypto");
 const { Pool } = require("pg");
 require("dotenv").config();
 
-const app = express();
 const port = process.env.PORT || 3000;
 
 const pool = new Pool({
@@ -16,9 +16,9 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
+app.use(express.static(path.join(__dirname, 'public')));
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
-app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
@@ -73,19 +73,18 @@ app.post("/check", async (req, res) => {
       let score = 0;
       breaches.forEach(breach => {
         let breachScore = 10;
-const sensitiveFields = ["Passwords", "Credit Cards", "SSNs", "Bank Accounts", "Health records"];
-const compromisedData = breach.DataClasses || [];
+        const sensitiveFields = ["Passwords", "Credit Cards", "SSNs", "Bank Accounts", "Health records"];
+        const compromisedData = breach.DataClasses || [];
 
-const sensitivityFactor = compromisedData.filter(data =>
-  sensitiveFields.includes(data)
-).length;
+        const sensitivityFactor = compromisedData.filter(data =>
+          sensitiveFields.includes(data)
+        ).length;
 
-breachScore += sensitivityFactor * 10;
-const breachDate = breach.BreachDate ? new Date(breach.BreachDate) : null;
-const formattedDate = breachDate ? breachDate.toLocaleDateString('en-SG', { year: 'numeric', month: 'short', day: 'numeric' }) : 'Unknown';
+        breachScore += sensitivityFactor * 10;
+        const breachDate = breach.BreachDate ? new Date(breach.BreachDate) : null;
 
         const now = new Date();
-        if (breachDate) {
+        if (breachDate && !isNaN(breachDate)) {
           const yearsAgo = (now - breachDate) / (1000 * 60 * 60 * 24 * 365);
           if (yearsAgo <= 1) {
             breachScore += 10;
@@ -101,7 +100,7 @@ const formattedDate = breachDate ? breachDate.toLocaleDateString('en-SG', { year
     }
 
     const riskScore = computeRiskScore(breaches);
-    const recommendations = []; // no longer used, handled in report.ejs
+    const recommendations = [];
 
     await pool.query(
       "INSERT INTO hygiene_results (email_hash, breaches_found, risk_score, recommendations, comparison_token) VALUES ($1, $2, $3, $4, $5)",
