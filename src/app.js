@@ -87,6 +87,8 @@ app.post("/check", async (req, res) => {
   let breaches = [];
 
   try {
+    console.log("Using HIBP API Key:", process.env.HIBP_API_KEY ? "✅ Loaded" : "❌ Missing");
+
     const hibpRes = await fetch(`https://haveibeenpwned.com/api/v3/breachedaccount/${encodeURIComponent(email)}?truncateResponse=false`, {
       method: "GET",
       headers: {
@@ -95,10 +97,18 @@ app.post("/check", async (req, res) => {
       }
     });
 
+    console.log("HIBP response status:", hibpRes.status);
+
     if (hibpRes.status === 200) {
-      breaches = await hibpRes.json();
+      const rawBody = await hibpRes.text();
+      console.log("HIBP raw response:", rawBody);
+      try {
+        breaches = JSON.parse(rawBody);
+      } catch (err) {
+        console.error("Error parsing HIBP response JSON:", err);
+      }
     } else if (hibpRes.status === 404) {
-      breaches = []; // No breaches found
+      console.log("No breaches found.");
     } else {
       const errorText = await hibpRes.text();
       console.error(`HIBP API error: ${hibpRes.status} - ${errorText}`);
@@ -127,7 +137,7 @@ app.post("/check", async (req, res) => {
       previousScan
     });
   } catch (error) {
-    console.error("Error during /check:", error);
+    console.error("Unhandled error during /check:", error);
     res.render("report", {
       email,
       breaches: [],
