@@ -38,11 +38,9 @@
         <strong>Wah! Your email appeared in <%= breaches.length %> breach(es).</strong>
         <ul style="margin-top: 0.5rem; padding-left: 1rem;">
           <% breaches.forEach(breach => { %>
-            <% const formattedDate = breach.BreachDate && !isNaN(Date.parse(breach.BreachDate)) 
-                ? new Date(breach.BreachDate).toLocaleDateString("en-SG", { year: "numeric", month: "short", day: "numeric" }) 
-                : "Unknown"; %>
-            <li><strong><%= breach.Name %></strong> — Breached on <%= formattedDate %></li>
-          <% }) %>
+  <% const formattedDate = breach.BreachDate ? new Date(breach.BreachDate).toLocaleDateString("en-SG", { year: "numeric", month: "short", day: "numeric" }) : "Unknown"; %>
+  <li><strong><%= breach.Name %></strong> — Breached on <%= formattedDate %></li>
+<% }) %>
         </ul>
       </div>
 
