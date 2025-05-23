@@ -1,5 +1,6 @@
 const express = require("express");
-const path = require("path");
+const path = require('path');
+app.use(express.static(path.join(__dirname, 'public')));
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const fetch = require("node-fetch");
