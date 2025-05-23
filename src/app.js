@@ -29,6 +29,14 @@ function generateToken() {
   return crypto.randomBytes(16).toString("hex");
 }
 
+function computeRiskScore(breaches) {
+  // Example: 0 if no breaches, 100 if 3+ breaches, 33/66 for 1/2 breaches
+  if (!breaches || breaches.length === 0) return 0;
+  if (breaches.length === 1) return 33;
+  if (breaches.length === 2) return 66;
+  return 100;
+}
+
 app.get("/", (req, res) => {
   res.render("index");
 });
