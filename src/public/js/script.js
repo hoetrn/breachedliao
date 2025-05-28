@@ -1,5 +1,5 @@
 
-// Matrix-style falling code effect on canvas
+// Matrix-style falling code effect on canvas + accordion & scroll logic
 
 document.addEventListener("DOMContentLoaded", () => {
   const canvas = document.createElement("canvas");
@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     ctx.fillStyle = "#1e3c72";
-    ctx.font = `${fontSize}px monospace`;
+    ctx.font = fontSize + "px monospace";
 
     for (let i = 0; i < drops.length; i++) {
       const text = letters[Math.floor(Math.random() * letters.length)];
@@ -46,4 +46,22 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   setInterval(drawMatrix, 35);
+
+  // Accordion logic for toggling breach details
+  const accordionToggles = document.querySelectorAll(".accordion-toggle");
+
+  accordionToggles.forEach(button => {
+    button.addEventListener("click", () => {
+      const content = button.nextElementSibling;
+      const isOpen = content.style.maxHeight;
+
+      if (isOpen) {
+        content.style.maxHeight = null;
+        button.textContent = "Show Details ▼";
+      } else {
+        content.style.maxHeight = content.scrollHeight + "px";
+        button.textContent = "Hide Details ▲";
+      }
+    });
+  });
 });

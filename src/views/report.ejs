@@ -34,37 +34,16 @@
   <div class="alert" style="margin-top: 2rem;">
     <strong>Your email appeared in <%= breaches.length %> breach(es)!</strong><br><br>
     <div style="margin-top: 1rem; margin-bottom: 1rem;">
-  <label for="breachFilter">Filter by:</label>
-  <select id="breachFilter" onchange="applyFilter()">
-    <option value="all">All</option>
-    <option value="recent">Last 3 years</option>
-    <option value="sensitive">Sensitive data</option>
-  </select>
-</div>
-<script>
-  function applyFilter() {
-    const filter = document.getElementById("breachFilter").value;
-    const items = document.querySelectorAll("#breachList li");
-    const now = new Date();
-
-    items.forEach(item => {
-      item.style.display = "block";
-      const text = item.innerText;
-      if (filter === "recent" && !text.match(/\d{4}/)) {
-        item.style.display = "none";
-      } else if (filter === "recent") {
-        const year = parseInt(text.match(/\d{4}/)[0]);
-        if (now.getFullYear() - year > 3) item.style.display = "none";
-      } else if (filter === "sensitive" && !text.includes("Passwords")) {
-        item.style.display = "none";
-      }
-    });
-  }
-</script>
+      <label for="breachFilter">Filter by:</label>
+      <select id="breachFilter" onchange="applyFilter()">
+        <option value="all">All</option>
+        <option value="recent">Last 3 years</option>
+        <option value="sensitive">Sensitive data</option>
+      </select>
+    </div>
     <button onclick="toggleAccordion()" class="scan-button" style="margin-bottom: 1rem;">
       Show Breach Details
     </button>
-
     <div id="breachList" style="display: none; max-height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 1rem; border-radius: 6px;">
       <ul>
         <% breaches.forEach(breach => { %>
@@ -85,61 +64,75 @@
       const el = document.getElementById("breachList");
       el.style.display = el.style.display === "none" ? "block" : "none";
     }
+    function applyFilter() {
+      const filter = document.getElementById("breachFilter").value;
+      const items = document.querySelectorAll("#breachList li");
+      const now = new Date();
+
+      items.forEach(item => {
+        item.style.display = "block";
+        const text = item.innerText;
+        if (filter === "recent" && !text.match(/\d{4}/)) {
+          item.style.display = "none";
+        } else if (filter === "recent") {
+          const year = parseInt(text.match(/\d{4}/)[0]);
+          if (now.getFullYear() - year > 3) item.style.display = "none";
+        } else if (filter === "sensitive" && !text.includes("Passwords")) {
+          item.style.display = "none";
+        }
+      });
+    }
   </script>
+<% } else { %>
+  <div class="safe" style="margin-top: 2rem;">
+    <strong>Solid!! — no known breaches found for your email.</strong>
+  </div>
 <% } %>
 
-        </ul>
-      </div>
+<% if (previousScan) { %>
+  <h3 style="margin-top: 2rem;">Comparison from Previous Scan</h3>
+  <p>Previous Score: <strong><%= previousScan.risk_score %></strong></p>
+  <p>Current Score: <strong><%= riskScore %></strong></p>
+  <p>
+    <%= riskScore < previousScan.risk_score ? "✅ Your hygiene has improved!" :
+         riskScore > previousScan.risk_score ? "⚠️ Your risk has increased." :
+         "➖ No change in score." %>
+  </p>
+<% } else { %>
+  <p style="margin-top: 2rem;">🔄 This is your first scan. Return again to compare hygiene over time.</p>
+<% } %>
 
-      <h3>Don't panic lah! Here are some recommended actions</h3>
-      <% const allRecommendations = {
-        low: [
-          { text: "Check your account recovery settings", link: "https://support.google.com/accounts/answer/183723?hl=en" },
-          { text: "Review your email forwarding rules", link: "https://proton.me/support/email-forwarding" }
-        ],
-        moderate: [
-          { text: "Change your password regularly", link: "https://www.csa.gov.sg/our-programmes/cybersecurity-outreach/sg-cyber-safe-seniors/reading-and-printable-resources/infographics-and-posters/activities" },
-          { text: "Enable two-factor authentication", link: "https://www.csa.gov.sg/our-programmes/cybersecurity-outreach/cybersecurity-campaigns/better-cyber-safe-than-sorry-campaign/use-strong-passwords-and-enable-2fa#688948caa2cf6675137a669fe16556ee" }
-        ],
-        high: [
-          { text: "Use a password manager to generate strong passwords", link: "https://www.csa.gov.sg/our-programmes/cybersecurity-outreach/cybersecurity-campaigns/better-cyber-safe-than-sorry-campaign/use-strong-passwords-and-enable-2fa" },
-          { text: "Secure breached accounts immediately", link: "https://www.haveibeenpwned.com/FAQs" }
-        ]
-      };
-      let severityLevel = "low";
-      if (riskScore > 66) severityLevel = "high";
-      else if (riskScore > 33) severityLevel = "moderate";
-      const personalized = allRecommendations[severityLevel]; %>
+<h3>Don't panic lah! Here are some recommended actions</h3>
+<% const allRecommendations = {
+  low: [
+    { text: "Check your account recovery settings", link: "https://support.google.com/accounts/answer/183723?hl=en" },
+    { text: "Review your email forwarding rules", link: "https://proton.me/support/email-forwarding" }
+  ],
+  moderate: [
+    { text: "Change your password regularly", link: "https://www.csa.gov.sg/our-programmes/cybersecurity-outreach/sg-cyber-safe-seniors/reading-and-printable-resources/infographics-and-posters/activities" },
+    { text: "Enable two-factor authentication", link: "https://www.csa.gov.sg/our-programmes/cybersecurity-outreach/cybersecurity-campaigns/better-cyber-safe-than-sorry-campaign/use-strong-passwords-and-enable-2fa#688948caa2cf6675137a669fe16556ee" }
+  ],
+  high: [
+    { text: "Use a password manager to generate strong passwords", link: "https://www.csa.gov.sg/our-programmes/cybersecurity-outreach/cybersecurity-campaigns/better-cyber-safe-than-sorry-campaign/use-strong-passwords-and-enable-2fa" },
+    { text: "Secure breached accounts immediately", link: "https://www.haveibeenpwned.com/FAQs" }
+  ]
+};
+let severityLevel = "low";
+if (riskScore > 66) severityLevel = "high";
+else if (riskScore > 33) severityLevel = "moderate";
+const personalized = allRecommendations[severityLevel]; %>
 
-      <ul style="list-style: none; padding-left: 0;">
-        <% personalized.forEach(r => { %>
-          <li>➤ <%= r.text %> — <a href="<%= r.link %>" target="_blank">Read more</a></li>
-        <% }) %>
-      </ul>
-    <% } else { %>
-      <div class="safe" style="margin-top: 2rem;">
-        <strong>Solid!! — no known breaches found for your email.</strong>
-      </div>
-    <% } %>
+<ul style="list-style: none; padding-left: 0;">
+  <% personalized.forEach(r => { %>
+    <li>➤ <%= r.text %> — <a href="<%= r.link %>" target="_blank">Read more</a></li>
+  <% }) %>
+</ul>
 
-    <% if (previousScan) { %>
-      <h3 style="margin-top: 2rem;">Comparison from Previous Scan</h3>
-      <p>Previous Score: <strong><%= previousScan.risk_score %></strong></p>
-      <p>Current Score: <strong><%= riskScore %></strong></p>
-      <p>
-        <%= riskScore < previousScan.risk_score ? "✅ Your hygiene has improved!" :
-             riskScore > previousScan.risk_score ? "⚠️ Your risk has increased." :
-             "➖ No change in score." %>
-      </p>
-    <% } else { %>
-      <p style="margin-top: 2rem;">🔄 This is your first scan. Return again to compare hygiene over time.</p>
-    <% } %>
-
-    <div style="text-align: center; margin-top: 2rem;">
-      <a href="/" class="scan-button">← Check Another Email</a>
-      <button onclick="window.print()" class="scan-button" style="margin-left: 1rem;">🖨️ Download</button>
-    </div>
-  </div>
-  <script src="/js/script.js"></script>
+<div style="text-align: center; margin-top: 2rem;">
+  <a href="/" class="scan-button">← Check Another Email</a>
+  <button onclick="window.print()" class="scan-button" style="margin-left: 1rem;">🖨️ Download</button>
+</div>
+</div>
+<script src="/js/script.js"></script>
 </body>
 </html>
