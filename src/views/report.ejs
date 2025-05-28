@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,9 +25,9 @@
     <div style="text-align: center; margin-top: 1rem;">
       <div style="display: flex; justify-content: center; align-items: center; gap: 1rem;">
         <div class="risk-dot <%= riskLabel.toLowerCase().replace(' ', '-') %>"></div>
-        <h2 style="font-size: 1.8rem; margin: 0;"><strong>Risk Score: <%= riskScore %>/100</strong></h2>
+        <h2 style="font-size: 1.8rem; margin: 0;"><strong id="riskScoreText">Risk Score: <%= riskScore %>/100</strong></h2>
       </div>
-      <p style="font-size: 1rem; color: #666; margin-top: 0.5rem;"><%= riskLabel %></p>
+      <p id="riskLabelText" style="font-size: 1rem; color: #666; margin-top: 0.5rem;"><%= riskLabel %></p>
     </div>
 
     <% const showAccordion = breaches.length > 10; %>
@@ -43,12 +44,15 @@
               <option value="sensitive">Sensitive data</option>
             </select>
           </div>
+
           <button onclick="toggleAccordion()" class="scan-button" style="margin-bottom: 1rem;">
             Show Breach Details
           </button>
+          <div id="breachList" style="display: none; max-height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 1rem; border-radius: 6px;">
+        <% } else { %>
+          <div id="breachList" style="display: block; padding: 1rem;">
         <% } %>
 
-        <div id="breachList" style="display: '<%= (showAccordion ? 'none' : 'block') %>'; max-height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 1rem; border-radius: 6px;">
           <ul>
             <% breaches.forEach(breach => { %>
               <% const formattedDate = breach.BreachDate && !isNaN(Date.parse(breach.BreachDate)) 
@@ -108,6 +112,16 @@
           <li>➤ <%= r.text %> — <a href="<%= r.link %>" target="_blank">Read more</a></li>
         <% }) %>
       </ul>
+
+      <h3 style="margin-top: 2rem;">📝 What have you done since the breach?</h3>
+      <p style="font-size: 1rem; color: #555;">Tick the actions you've taken to improve your security:</p>
+
+      <form id="selfChecklist" style="margin-bottom: 2rem;">
+        <label><input type="checkbox" data-points="5"> I changed my password on breached sites</label><br>
+        <label><input type="checkbox" data-points="5"> I enabled two-factor authentication (2FA)</label><br>
+        <label><input type="checkbox" data-points="5"> I deleted unused online accounts</label><br>
+        <label><input type="checkbox" data-points="5"> I reviewed my email forwarding and recovery settings</label>
+      </form>
     <% } %>
 
     <div style="text-align: center; margin-top: 2rem;">
@@ -145,8 +159,6 @@
     window.addEventListener("beforeprint", () => {
       const el = document.getElementById("breachList");
       if (el) el.style.display = "block";
-      const items = document.querySelectorAll("#breachList li");
-      items.forEach(item => item.style.display = "block");
     });
   </script>
 </body>

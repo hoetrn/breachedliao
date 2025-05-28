@@ -1,6 +1,4 @@
-
-// Matrix-style falling code effect on canvas + accordion & scroll logic
-
+// Matrix-style falling code effect on canvas
 document.addEventListener("DOMContentLoaded", () => {
   const canvas = document.createElement("canvas");
   canvas.id = "matrix-bg";
@@ -47,21 +45,50 @@ document.addEventListener("DOMContentLoaded", () => {
 
   setInterval(drawMatrix, 35);
 
-  // Accordion logic for toggling breach details
-  const accordionToggles = document.querySelectorAll(".accordion-toggle");
+  // Checklist adjustment
+  const checklist = document.querySelectorAll("#selfChecklist input[type='checkbox']");
+  if (checklist.length > 0) {
+    const emailEl = document.querySelector("h1.gradient-text");
+    const emailMatch = emailEl ? emailEl.innerText.match(/for (.*)/) : null;
+    const emailKey = emailMatch ? emailMatch[1].trim() + "_checklist" : "default_checklist";
+    const stored = JSON.parse(localStorage.getItem(emailKey)) || [];
 
-  accordionToggles.forEach(button => {
-    button.addEventListener("click", () => {
-      const content = button.nextElementSibling;
-      const isOpen = content.style.maxHeight;
-
-      if (isOpen) {
-        content.style.maxHeight = null;
-        button.textContent = "Show Details ▼";
-      } else {
-        content.style.maxHeight = content.scrollHeight + "px";
-        button.textContent = "Hide Details ▲";
-      }
+    checklist.forEach((box, idx) => {
+      if (stored.includes(idx)) box.checked = true;
     });
-  });
+
+    updateScore();
+
+    checklist.forEach((box, idx) => {
+      box.addEventListener("change", () => {
+        const updated = [];
+        checklist.forEach((b, i) => {
+          if (b.checked) updated.push(i);
+        });
+        localStorage.setItem(emailKey, JSON.stringify(updated));
+        updateScore();
+      });
+    });
+
+    function updateScore() {
+      const baseScore = parseInt(document.querySelector("h2 strong").innerText.match(/\d+/)[0]);
+      let bonus = 0;
+
+      checklist.forEach(box => {
+        if (box.checked) {
+          bonus += parseInt(box.dataset.points);
+        }
+      });
+
+      const newScore = Math.max(0, baseScore - bonus);
+      const label = newScore <= 33 ? "Low Risk" : newScore <= 66 ? "Moderate Risk" : "High Risk";
+
+      document.querySelector("h2 strong").innerText = `Risk Score: ${newScore}/100`;
+      document.querySelector("p").innerText = label;
+
+      const dot = document.querySelector(".risk-dot");
+      dot.classList.remove("low-risk", "moderate-risk", "high-risk");
+      dot.classList.add(label.toLowerCase().replace(" ", "-"));
+    }
+  }
 });
