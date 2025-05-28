@@ -103,7 +103,25 @@
 <% } %>
 
 <h3>Don't panic lah! Here are some recommended actions</h3>
+<% if (breaches.length > 0) { %>
 <% const allRecommendations = {
+  low: [
+    { text: "Check your account recovery settings", link: "https://support.google.com/accounts/answer/183723?hl=en" },
+    { text: "Review your email forwarding rules", link: "https://proton.me/support/email-forwarding" }
+  ],
+  moderate: [
+    { text: "Change your password regularly", link: "https://www.csa.gov.sg/our-programmes/cybersecurity-outreach/sg-cyber-safe-seniors/reading-and-printable-resources/infographics-and-posters/activities" },
+    { text: "Enable two-factor authentication", link: "https://www.csa.gov.sg/our-programmes/cybersecurity-outreach/cybersecurity-campaigns/better-cyber-safe-than-sorry-campaign/use-strong-passwords-and-enable-2fa#688948caa2cf6675137a669fe16556ee" }
+  ],
+  high: [
+    { text: "Use a password manager to generate strong passwords", link: "https://www.csa.gov.sg/our-programmes/cybersecurity-outreach/cybersecurity-campaigns/better-cyber-safe-than-sorry-campaign/use-strong-passwords-and-enable-2fa" },
+    { text: "Secure breached accounts immediately", link: "https://www.haveibeenpwned.com/FAQs" }
+  ]
+};
+let severityLevel = "low";
+if (riskScore > 66) severityLevel = "high";
+else if (riskScore > 33) severityLevel = "moderate";
+const personalized = allRecommendations[severityLevel]; %>
   low: [
     { text: "Check your account recovery settings", link: "https://support.google.com/accounts/answer/183723?hl=en" },
     { text: "Review your email forwarding rules", link: "https://proton.me/support/email-forwarding" }
@@ -136,3 +154,15 @@ const personalized = allRecommendations[severityLevel]; %>
 <script src="/js/script.js"></script>
 </body>
 </html>
+
+<script>
+  function toggleAccordion() {
+    const el = document.getElementById("breachList");
+    if (el) el.style.display = el.style.display === "none" ? "block" : "none";
+  }
+
+  window.addEventListener("beforeprint", () => {
+    const el = document.getElementById("breachList");
+    if (el) el.style.display = "block";
+  });
+</script>
